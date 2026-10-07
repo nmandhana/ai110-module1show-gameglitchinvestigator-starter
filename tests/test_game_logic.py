@@ -19,3 +19,19 @@ def test_guess_too_low():
     outcome, message = logic_utils.check_guess(40, 50)
     assert outcome == "Too Low"
     assert message == "📈 Go HIGHER!"
+
+def test_easy_range():
+    # Easy mode should use the full 1 to 100 range
+    assert logic_utils.get_range_for_difficulty("Easy") == (1, 100)
+
+def test_normal_range():
+    # Normal mode should use 1 to 50 (this was the swapped-range bug)
+    assert logic_utils.get_range_for_difficulty("Normal") == (1, 50)
+
+def test_hard_range():
+    # Hard mode should use 1 to 20
+    assert logic_utils.get_range_for_difficulty("Hard") == (1, 20)
+
+def test_unknown_difficulty_falls_back_to_default_range():
+    # Any unrecognized difficulty should fall back to 1 to 100
+    assert logic_utils.get_range_for_difficulty("Impossible") == (1, 100)
