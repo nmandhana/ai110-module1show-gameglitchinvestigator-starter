@@ -5,7 +5,7 @@ from logic_utils import check_guess
 
 def get_range_for_difficulty(difficulty: str):
     if difficulty == "Easy":
-        # FIXME: Logic breaks here
+        #FIXME: Logic breaks here
         return 1, 20
     if difficulty == "Normal":
         # FIXME: Logic breaks here
@@ -65,7 +65,9 @@ difficulty = st.sidebar.selectbox(
 )
 
 attempt_limit_map = {
+    # FIXME: Logic breaks here
     "Easy": 6,
+    # FIXME: Logic breaks here
     "Normal": 8,
     "Hard": 5,
 }

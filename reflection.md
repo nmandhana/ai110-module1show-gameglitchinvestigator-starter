@@ -67,4 +67,5 @@ In future projects, I want to keep the habit of isolating core game and business
 
 - What is one thing you would do differently next time you work with AI on a coding task?
 - In one or two sentences, describe how this project changed the way you think about AI generated code.
+This project taught me that AI-generated code frequently appears clean and functional while hiding subtle logical flaws, like overenginnnering of checking input and convering to string or unhandled edge cases. I now treat AI renerated code as an unverified initial draft that demands strict human review and boundary testing rather than a ready-to-merge solution.
 
