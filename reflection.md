@@ -16,15 +16,14 @@ When I first ran app.py, the app rendered without crashing, but playing the game
 
 Document at least 3 bugs you found. Add rows as needed.
 
-|          Input         |      Expected Behavior       |              Actual Behavior              | Console Output / Error|
-|------------------------|------------------------------|-------------------------------------------|-----------------------|
-| Guess: 20 (Secret: 19) | Go LOWER! should be hint     | Go HIGHER! shown hint                     |          None         |
-| Difficulty: Normal     | Range: 1 to 50               | Range: 1 to 100                           |          None         |
-| Guess: 25 (Secret: 25) | Victory detected and         | Victory detected, but score decremented   |          None         |
-                           score preserved                due to unconditional penalty                                  
-| Guess: -5              | expected out-of-bounds error | Negative number was accepted as a valid |                         |
-                          and attemt should be preserved| guess and deducted an attempt.                     
-                          
+| Input                  | Expected Behavior                                   | Actual Behavior                                                       | Console Output / Error                 |
+|------------------------|-----------------------------------------------------|-----------------------------------------------------------------------|----------------------------------------|
+| Guess: 20 (Secret: 19) | "Go LOWER!" should be the hint                      | "Go HIGHER!" shown as the hint                                        | None — no traceback; silent logic bug  |
+| Difficulty: Normal     | Range: 1 to 50                                      | Range: 1 to 100                                                       | None — no traceback; silent logic bug  |
+| Guess: 25 (Secret: 25) | Victory detected and score preserved (bonus added)  | Victory detected, but score decremented due to unconditional penalty  | None — no traceback; silent logic bug  |
+| Guess: -5              | Out-of-bounds error, attempt preserved              | Negative number accepted as a valid guess and deducted an attempt     | None — no traceback; silent logic bug  |
+
+**Note on console output:** none of these bugs ever produced an error or traceback in the terminal. The only console output while running the app is Streamlit's normal startup messages (`Local URL: http://localhost:8501`, ...) and one environment warning unrelated to the game (`NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'`). The app rendered and ran "successfully" the whole time, which is what made these bugs easy to miss — they were all silent logic errors visible only through gameplay and the Developer Debug Info panel, not through crashes.
 
 
 
@@ -48,7 +47,12 @@ One suggestion I did not accept as written was in check_guess: the AI suggested 
 I decided a bug was truly resolved only after confirming both the isolated logic in unit tests and the live behavior across edge cases in the browser using streamlit run app.py.
 - Describe at least one test you ran (manual or using pytest)  
   and what it showed you about your code.
+
+One test that taught me the most was `test_too_high_always_loses_5_points`, which asserts that a "Too High" guess loses 5 points on both an even attempt (2) and an odd attempt (3). Writing it against the original code exposed the hidden `attempt_number % 2 == 0` branch that *rewarded* wrong guesses with +5 on even attempts — a bug that was easy to miss in manual play because it only appeared every other turn. I also ran `test_win_on_first_attempt_awards_90_points`, which caught the off-by-one in the win bonus (the old formula paid 80 instead of 90 because app.py increments attempts before calling `update_score`). Together they showed me that score bugs depending on *when* in the game they fire really need unit tests, since manual testing samples only a few attempt numbers.
+
 - Did AI help you design or understand any tests? How?
+
+Yes — Claude suggested the test cases for `update_score` and `parse_guess`, and the most valuable idea was testing the same outcome at different attempt numbers (even vs. odd) specifically to lock out the alternating-bonus glitch from regressing. It also suggested boundary-style cases I would have skipped, like the minimum-10 floor on the win bonus (attempt 12) and `parse_guess` with `None`, an empty string, and a decimal like "7.9" that truncates to 7. I reviewed each suggested assertion against the intended rules before accepting it, and ran the full suite (17 passed) plus manual checks in the browser to confirm the tests matched real behavior.
 
 ---
 
