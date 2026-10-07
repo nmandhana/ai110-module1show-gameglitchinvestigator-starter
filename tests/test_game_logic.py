@@ -35,3 +35,25 @@ def test_hard_range():
 def test_unknown_difficulty_falls_back_to_default_range():
     # Any unrecognized difficulty should fall back to 1 to 100
     assert logic_utils.get_range_for_difficulty("Impossible") == (1, 100)
+
+def test_win_on_first_attempt_awards_90_points():
+    # Winning on attempt 1 should pay 100 - 10*1 = 90 (this was the off-by-one bug)
+    assert logic_utils.update_score(0, "Win", 1) == 90
+
+def test_win_on_late_attempt_awards_minimum_10_points():
+    # The win bonus should never drop below 10, no matter how many attempts
+    assert logic_utils.update_score(0, "Win", 12) == 10
+
+def test_too_high_always_loses_5_points():
+    # A "Too High" guess must lose 5 points even on even attempts
+    # (this was the glitch that rewarded wrong guesses with +5)
+    assert logic_utils.update_score(50, "Too High", 2) == 45
+    assert logic_utils.update_score(50, "Too High", 3) == 45
+
+def test_too_low_loses_5_points():
+    # A "Too Low" guess loses 5 points
+    assert logic_utils.update_score(50, "Too Low", 1) == 45
+
+def test_other_outcome_preserves_score():
+    # Any other outcome (e.g. invalid input) should leave the score unchanged
+    assert logic_utils.update_score(50, "Invalid", 1) == 50
